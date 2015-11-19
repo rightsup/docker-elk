@@ -1,5 +1,5 @@
 FROM java:8
-MAINTAINER William Durand <william.durand1@gmail.com>
+MAINTAINER RightsUp <it@rightsup.com>
 
 ENV DEBIAN_FRONTEND noninteractive
 
