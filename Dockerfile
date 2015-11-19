@@ -29,6 +29,7 @@ ADD etc/supervisor/conf.d/logstash.conf /etc/supervisor/conf.d/logstash.conf
 
 # Logstash plugins
 RUN /opt/logstash/bin/plugin install logstash-filter-translate
+RUN /opt/logstash/bin/plugin install logstash-output-riemann
 
 # Kibana
 RUN \
