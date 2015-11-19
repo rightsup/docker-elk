@@ -33,15 +33,21 @@ RUN /opt/logstash/bin/plugin install logstash-output-riemann
 
 # Kibana
 RUN \
-    curl -s https://download.elasticsearch.org/kibana/kibana/kibana-4.1.2-linux-x64.tar.gz | tar -C /opt -xz && \
-    ln -s /opt/kibana-4.1.2-linux-x64 /opt/kibana && \
-    sed -i 's/port: 5601/port: 80/' /opt/kibana/config/kibana.yml
+    apt-get install -y nginx && \
+	if ! grep "daemon off" /etc/nginx/nginx.conf; then sed -i '/worker_processes.*/a daemon off;' /etc/nginx/nginx.conf;fi && \
+	mkdir -p /var/www && \
+	wget -O kibana.tar.gz https://download.elasticsearch.org/kibana/kibana/kibana-3.1.0.tar.gz && \
+    tar xzf kibana.tar.gz -C /opt && \
+    ln -s /opt/kibana-3.1.0 /var/www/kibana
 
-ADD etc/supervisor/conf.d/kibana.conf /etc/supervisor/conf.d/kibana.conf
+RUN sed -i 's/"http:\/\/"+window.location.hostname+":9200"/"http:\/\/"+window.location.hostname+":"+window.location.port/' /opt/kibana-3.1.0/config.js
+
+# configure nginx
+ADD etc/supervisor/conf.d/nginx.conf /etc/supervisor/conf.d/nginx.conf
+ADD etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/default
 
 EXPOSE 80
 
 ENV PATH /opt/logstash/bin:$PATH
 
 CMD [ "/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf" ]
-
